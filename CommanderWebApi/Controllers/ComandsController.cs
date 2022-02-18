@@ -36,7 +36,7 @@ namespace CommanderWebApi.Controllers
             }
             return NoContent();
         }
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetCommandById")]
         public ActionResult<CommanderReaderDTO> GetCommandById(int id)
         {
             var command = _commanderRepository.GetCommand(id);
@@ -48,16 +48,18 @@ namespace CommanderWebApi.Controllers
             return NotFound();
         }
         [HttpPost]
-        public  ActionResult CreateCommands(CreateCommandDTO createCommandDTO)
+        public  ActionResult<CommanderReaderDTO> CreateCommands(CreateCommandDTO createCommandDTO)
         {
             if (ModelState.IsValid)
             {
                 var commandConvertedfromDto = _autoMapper.Map<Command>(createCommandDTO);
                 var isCreated = _commanderRepository.CreateCommand(commandConvertedfromDto);
 
+                var commandReadDto = _autoMapper.Map<CommanderReaderDTO>(commandConvertedfromDto);
+
                 if (isCreated)
                 {
-                    return CreatedAtRoute(nameof(CreateCommands), new { });
+                    return CreatedAtRoute(nameof(GetCommandById), new {Id = commandReadDto.Id }, commandReadDto);
                 }
             }
                 
